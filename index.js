@@ -2,15 +2,15 @@
 
 const plan = [
   '############################',
-  '#      #      #        o   #',
-  '#                          #',
+  '#      #      #            #',
+  '#oooooooooooooooooooooo    #',
   '#           #####          #',
-  '##          #   #    ##    #',
+  '##          # o #    ##    #',
   '###            ##     #    #',
   '#            ###      #    #',
   '#    ####                  #',
-  '#    ##       o            #',
-  '# o   #         o      ### #',
+  '#    ##                    #',
+  '#     #                ### #',
   '#     #                    #',
   '############################'
 ]
@@ -170,6 +170,14 @@ function View (world, vector) {
   this.vector = vector
 }
 
+/**
+*The look method figures out the coordinates that we are trying to look at and,
+*if they are inside the grid, finds the character corresponding to the element
+*that sits there.
+*For coordinates outside the grid, look simply pretends that there is a wall,
+*so that if you define a world that isn’t walled in, the critters still won’t be
+*tempted to try to walk off the edges.
+*/
 View.prototype.look = function (dir) {
   let target = this.vector.plus(directions[dir])
   if (this.world.grid.isInside(target)) {
