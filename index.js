@@ -8,7 +8,7 @@ const plan = [
   '#            ###      #    #',
   '#    ####                  #',
   '#    ##    ~     ~      ~  #',
-  '#     #                ### #',
+  '#     #                #####',
   '#     #                    #',
   '############################'
 ]
@@ -94,20 +94,45 @@ function elementFromChar (legend, ch) {
   if (ch === ' ') {
     return null
   }
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt#Getting_whole_characters
   let element = new legend[ch]()
   element.originChar = ch
   return element
 }
 
 function World (map, legend) {
+  /*
+   * Sprawdzaj czy na mapie nie ma non-BMP znaków
+   *
+   * BUG: taki znak musi być ostatnią ,,literką'', inaczej wywala program. Czemu?
+   * SOLUTION: Nie używaj fixedCharAt(): zwraca '' jeśli index jest niewłaściwy
+   */
   let grid = new Grid(map[0].length, map.length)
   this.grid = grid
   this.legend = legend
 
   map.forEach(function (line, y) {
-    for (let x = 0; x < line.length; x++) {
-      grid.set(new Vector(x, y), elementFromChar(legend, line[x]))
+    /*
+     * I have learnt the hard way that if I use for instance multi-byte characters (like this 🌱) than
+     * iterating over such string does not work.
+     * e.g.: '🌱🌱🌱🌱'[2] gives garbage.
+     *
+     * More examples: https://flaviocopes.com/javascript-unicode/ bottom of the page
+     */
+    [...line].forEach((x, index) => {
+      grid.set(new Vector(index, y), elementFromChar(legend, x))
+    })
+
+    /*
+    for (let x = 0, chr; x < line.length; x++) {
+       // Oto zagadka: co zrobić jeśli znajdziesz tutaj z angielskiego: non-BMP characters?
+      if (((chr = require('./getWholeChar.js')(line, x)) === false)) {
+        continue
+      }
+      // grid.set(new Vector(x, y), elementFromChar(legend, require('./getWholeChar.js')(line, x)))
+      grid.set(new Vector(x, y), elementFromChar(legend, chr))
     }
+    */
   })
 }
 
@@ -419,6 +444,7 @@ if (process.argv[2] !== undefined) {
 // start the fun
 // let world = new World(loadPlan, { '#': Wall, 'o': BouncingCritter, '~': WallFollower })
 let world = new LifelikeWorld(loadPlan, { '#': Wall, '*': Plant, 'O': PlantEater, 'o': BouncingCritter, '~': WallFollower })
+// let world = new LifelikeWorld(loadPlan, { '🌱': Plant, '#': Wall, 'O': PlantEater, 'o': BouncingCritter, '*': Plant })
 
 setInterval(function () {
   world.turn()
