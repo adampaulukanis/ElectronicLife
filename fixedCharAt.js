@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 module.exports = function fixedCharAt(str, idx) {
   var ret = '';
@@ -6,7 +6,7 @@ module.exports = function fixedCharAt(str, idx) {
   var end = str.length;
 
   var surrogatePairs = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
-  while ((surrogatePairs.exec(str)) != null) {
+  while (surrogatePairs.exec(str) != null) {
     var li = surrogatePairs.lastIndex;
     if (li - 2 < idx) {
       idx++;
@@ -21,9 +21,12 @@ module.exports = function fixedCharAt(str, idx) {
 
   ret += str.charAt(idx);
 
-  if (/[\uD800-\uDBFF]/.test(ret) && /[\uDC00-\uDFFF]/.test(str.charAt(idx + 1))) {
+  if (
+    /[\uD800-\uDBFF]/.test(ret) &&
+    /[\uDC00-\uDFFF]/.test(str.charAt(idx + 1))
+  ) {
     // Go one further, since one of the characters is part of a surrogate pair
     ret += str.charAt(idx + 1);
   }
   return ret;
-}
+};

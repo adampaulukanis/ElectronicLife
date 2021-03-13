@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-const assert = require("assert");
+const assert = require('assert');
 
-describe("first test", function () {
-    it("doing something", function () {
-        assert(true);
-    });
+describe('first test', function () {
+  it('doing something', function () {
+    assert(true);
+  });
 });

@@ -4,7 +4,7 @@
   "description": "Electronic simulation of simple forms of life",
   "main": "index.js",
   "scripts": {
-    "pretest": "./node_modules/.bin/eslint index.js",
+    "pretest": "eslint **.js",
     "test": "mocha tests/*"
   },
   "repository": {
@@ -22,11 +22,15 @@
     "nodemon": "^1.19.1"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
+    "eslint": "*",
+    "eslint-config-prettier": "^8.1.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-mocha": "^8.1.0",
     "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-standard": "^4.0.0",
+    "prettier": "^2.2.1"
   }
 }

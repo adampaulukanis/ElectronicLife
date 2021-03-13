@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const plan = [
   '############################',
@@ -10,106 +10,110 @@ const plan = [
   '#    ##    ~     ~      ~  #',
   '#     #                #####',
   '#     #                    #',
-  '############################'
-]
+  '############################',
+];
 
 /**
  * Simple class representing a point in two-dimensional space by means
  * of two coordinates.
  * TODO: I have a class for this: https://github.com/adam17/Vector
  */
-function Vector (x, y) {
-  this.x = x
-  this.y = y
+function Vector(x, y) {
+  this.x = x;
+  this.y = y;
 }
 
 /**
  * Adds two vectors and returns the sum of them.
  */
 Vector.prototype.plus = function (other) {
-  return new Vector(this.x + other.x, this.y + other.y)
-}
+  return new Vector(this.x + other.x, this.y + other.y);
+};
 
 /**
  * To store a grid of values we can use a single array,
  * with size width × height, and decide that the element at (x,y)
  * is found at position x + (y × width) in the array.
  */
-function Grid (width, height) {
-  this.space = new Array(width * height)
-  this.width = width
-  this.height = height
+function Grid(width, height) {
+  this.space = new Array(width * height);
+  this.width = width;
+  this.height = height;
 }
 Grid.prototype.isInside = function (vector) {
-  return vector.x >= 0 && vector.x < this.width &&
-         vector.y >= 0 && vector.y < this.height
-}
+  return (
+    vector.x >= 0 &&
+    vector.x < this.width &&
+    vector.y >= 0 &&
+    vector.y < this.height
+  );
+};
 Grid.prototype.get = function (vector) {
-  return this.space[vector.x + this.width * vector.y]
-}
+  return this.space[vector.x + this.width * vector.y];
+};
 Grid.prototype.set = function (vector, value) {
-  this.space[vector.x + this.width * vector.y] = value
-}
+  this.space[vector.x + this.width * vector.y] = value;
+};
 Grid.prototype.forEach = function (f, context) {
   for (let y = 0; y < this.height; y++) {
     for (let x = 0; x < this.width; x++) {
-      let value = this.space[x + y * this.width]
+      let value = this.space[x + y * this.width];
       if (value != null) {
-        f.call(context, value, new Vector(x, y))
+        f.call(context, value, new Vector(x, y));
       }
     }
   }
-}
+};
 
 const directions = {
-  'n': new Vector(0, -1),
-  'ne': new Vector(1, -1),
-  'e': new Vector(1, 0),
-  'se': new Vector(1, 1),
-  's': new Vector(0, 1),
-  'sw': new Vector(-1, 1),
-  'w': new Vector(-1, 0),
-  'nw': new Vector(-1, -1)
-}
+  n: new Vector(0, -1),
+  ne: new Vector(1, -1),
+  e: new Vector(1, 0),
+  se: new Vector(1, 1),
+  s: new Vector(0, 1),
+  sw: new Vector(-1, 1),
+  w: new Vector(-1, 0),
+  nw: new Vector(-1, -1),
+};
 
-function randomElement (array) {
-  return array[Math.floor(Math.random() * array.length)]
+function randomElement(array) {
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 // const directionNames = 'n ne e se s sw w nw'.split(' ')
-const directionNames = Object.keys(directions)
+const directionNames = Object.keys(directions);
 
-function BouncingCritter () {
-  this.direction = randomElement(directionNames)
+function BouncingCritter() {
+  this.direction = randomElement(directionNames);
 }
 BouncingCritter.prototype.act = function (view) {
   if (view.look(this.direction) !== ' ') {
-    this.direction = view.find(' ') || 's'
+    this.direction = view.find(' ') || 's';
   }
-  return { type: 'move', direction: this.direction }
-}
+  return { type: 'move', direction: this.direction };
+};
 
 // World
-function elementFromChar (legend, ch) {
+function elementFromChar(legend, ch) {
   if (ch === ' ') {
-    return null
+    return null;
   }
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt#Getting_whole_characters
-  let element = new legend[ch]()
-  element.originChar = ch
-  return element
+  let element = new legend[ch]();
+  element.originChar = ch;
+  return element;
 }
 
-function World (map, legend) {
+function World(map, legend) {
   /*
    * Sprawdzaj czy na mapie nie ma non-BMP znaków
    *
    * BUG: taki znak musi być ostatnią ,,literką'', inaczej wywala program. Czemu?
    * SOLUTION: Nie używaj fixedCharAt(): zwraca '' jeśli index jest niewłaściwy
    */
-  let grid = new Grid(map[0].length, map.length)
-  this.grid = grid
-  this.legend = legend
+  let grid = new Grid(map[0].length, map.length);
+  this.grid = grid;
+  this.legend = legend;
 
   map.forEach(function (line, y) {
     /*
@@ -120,8 +124,8 @@ function World (map, legend) {
      * More examples: https://flaviocopes.com/javascript-unicode/ bottom of the page
      */
     [...line].forEach((x, index) => {
-      grid.set(new Vector(index, y), elementFromChar(legend, x))
-    })
+      grid.set(new Vector(index, y), elementFromChar(legend, x));
+    });
 
     /*
     for (let x = 0, chr; x < line.length; x++) {
@@ -133,117 +137,118 @@ function World (map, legend) {
       grid.set(new Vector(x, y), elementFromChar(legend, chr))
     }
     */
-  })
+  });
 }
 
-function charFromElement (element) {
+function charFromElement(element) {
   if (element == null) {
-    return ' '
+    return ' ';
   } else {
-    return element.originChar
+    return element.originChar;
   }
 }
 
 World.prototype.toString = function () {
-  let output = ''
+  let output = '';
   for (let y = 0; y < this.grid.height; y++) {
     for (let x = 0; x < this.grid.width; x++) {
-      let element = this.grid.get(new Vector(x, y))
-      output += charFromElement(element)
+      let element = this.grid.get(new Vector(x, y));
+      output += charFromElement(element);
     }
-    output += '\n'
+    output += '\n';
   }
-  return output
-}
+  return output;
+};
 
 World.prototype.turn = function () {
-  let acted = []
+  let acted = [];
   this.grid.forEach(function (critter, vector) {
     if (critter.act && acted.indexOf(critter) === -1) {
-      acted.push(critter)
-      this.letAct(critter, vector)
+      acted.push(critter);
+      this.letAct(critter, vector);
     }
-  }, this)
-}
+  }, this);
+};
 
 World.prototype.letAct = function (critter, vector) {
-  let action = critter.act(new View(this, vector))
+  let action = critter.act(new View(this, vector));
   if (action && action.type === 'move') {
-    let dest = this.checkDestination(action, vector)
+    let dest = this.checkDestination(action, vector);
     if (dest && this.grid.get(dest) == null) {
-      this.grid.set(vector, null)
-      this.grid.set(dest, critter)
+      this.grid.set(vector, null);
+      this.grid.set(dest, critter);
     }
   }
-}
+};
 
 World.prototype.checkDestination = function (action, vector) {
-  if (directions.hasOwnProperty(action.direction)) {
-    let dest = vector.plus(directions[action.direction])
+  //if (directions.hasOwnProperty(action.direction)) {
+  if (Object.prototype.hasOwnProperty.call(directions, action.direction)) {
+    let dest = vector.plus(directions[action.direction]);
     if (this.grid.isInside(dest)) {
-      return dest
+      return dest;
     }
   }
-}
+};
 
-function Wall () {}
+function Wall() {}
 
-function View (world, vector) {
-  this.world = world
-  this.vector = vector
+function View(world, vector) {
+  this.world = world;
+  this.vector = vector;
 }
 
 /**
-*The look method figures out the coordinates that we are trying to look at and,
-*if they are inside the grid, finds the character corresponding to the element
-*that sits there.
-*For coordinates outside the grid, look simply pretends that there is a wall,
-*so that if you define a world that isn’t walled in, the critters still won’t be
-*tempted to try to walk off the edges.
-*/
+ *The look method figures out the coordinates that we are trying to look at and,
+ *if they are inside the grid, finds the character corresponding to the element
+ *that sits there.
+ *For coordinates outside the grid, look simply pretends that there is a wall,
+ *so that if you define a world that isn’t walled in, the critters still won’t be
+ *tempted to try to walk off the edges.
+ */
 View.prototype.look = function (dir) {
-  let target = this.vector.plus(directions[dir])
+  let target = this.vector.plus(directions[dir]);
   if (this.world.grid.isInside(target)) {
-    return charFromElement(this.world.grid.get(target))
+    return charFromElement(this.world.grid.get(target));
   } else {
-    return '#'
+    return '#';
   }
-}
+};
 
 View.prototype.findAll = function (ch) {
-  let found = []
+  let found = [];
   for (let dir in directions) {
     if (this.look(dir) === ch) {
-      found.push(dir)
+      found.push(dir);
     }
   }
-  return found
-}
+  return found;
+};
 
 View.prototype.find = function (ch) {
-  let found = this.findAll(ch)
+  let found = this.findAll(ch);
   if (found.length === 0) {
-    return null
+    return null;
   }
-  return randomElement(found)
-}
+  return randomElement(found);
+};
 
 /**
  * Since directions are modeled by a set of strings, we need to define our own operation (dirPlus)
  * to calculate relative directions. So dirPlus("n", 1) means one 45-degree turn clockwise from north,
  * giving "ne". Similarly, dirPlus("s", -2) means 90 degrees counterclockwise from south, which is east.
  */
-function dirPlus (dir, n) {
-  const index = directionNames.indexOf(dir)
-  return directionNames[(index + n + 8) % 8]
+function dirPlus(dir, n) {
+  const index = directionNames.indexOf(dir);
+  return directionNames[(index + n + 8) % 8];
 }
 
 /**
  * There is a critter that moves along walls.
  * Conceptually, the critter keeps its left hand to the wall and follows along.
  */
-function WallFollower () {
-  this.dir = 's'
+function WallFollower() {
+  this.dir = 's';
 }
 
 /**
@@ -262,18 +267,18 @@ function WallFollower () {
  * can't find an empty square.
  */
 WallFollower.prototype.act = function (view) {
-  let start = this.dir
+  let start = this.dir;
   if (view.look(dirPlus(this.dir, -3)) !== ' ') {
-    start = this.dir = dirPlus(this.dir, -2)
+    start = this.dir = dirPlus(this.dir, -2);
   }
   while (view.look(this.dir) !== ' ') {
-    this.dir = dirPlus(this.dir, 1)
+    this.dir = dirPlus(this.dir, 1);
     if (this.dir === start) {
-      break
+      break;
     }
   }
-  return { type: 'move', direction: this.dir }
-}
+  return { type: 'move', direction: this.dir };
+};
 
 /**
  * To make life in our world more interesting, we will add the concepts of food and reproduction.
@@ -281,12 +286,12 @@ WallFollower.prototype.act = function (view) {
  * eating things. When the critter has enough energy, it can reproduce, generating a new critter of the same kind.
  * To keep things simple, the critters in our world reproduce asexually, all by themselves.
  */
-function LifelikeWorld (map, legend) {
-  World.call(this, map, legend)
+function LifelikeWorld(map, legend) {
+  World.call(this, map, legend);
 }
-LifelikeWorld.prototype = Object.create(World.prototype)
+LifelikeWorld.prototype = Object.create(World.prototype);
 
-const actionTypes = Object.create(null)
+const actionTypes = Object.create(null);
 
 /**
  * We’ll need a world with a different letAct method. We could just replace the method of the World prototype, but
@@ -297,31 +302,32 @@ const actionTypes = Object.create(null)
  * performing an action to various functions stored in the actionTypes object.
  */
 LifelikeWorld.prototype.letAct = function (critter, vector) {
-  const action = critter.act(new View(this, vector))
-  const handled = action &&
+  const action = critter.act(new View(this, vector));
+  const handled =
+    action &&
     action.type in actionTypes &&
-    actionTypes[action.type].call(this, critter, vector, action)
+    actionTypes[action.type].call(this, critter, vector, action);
   /*
    * If the action didn’t work for whatever reason, the default action is for the creature to simply wait.
    * It loses one-fifth point of energy, and if its energy level drops to zero or below,
    * the creature dies and is removed from the grid.
    */
   if (!handled) {
-    critter.energy -= 0.2
+    critter.energy -= 0.2;
     if (critter.energy <= 0) {
-      this.grid.set(vector, null)
+      this.grid.set(vector, null);
     }
   }
-}
+};
 
 /**
  * The simplest action a creature can perform is "grow", used by plants.
  * When an action object like {type: "grow"} is returned, the following handler method will be called
  */
 actionTypes.grow = function (critter) {
-  critter.energy += 0.5
-  return true
-}
+  critter.energy += 0.5;
+  return true;
+};
 
 /**
  * This action first checks, using the checkDestination method defined earlier, whether the action
@@ -329,17 +335,15 @@ actionTypes.grow = function (critter) {
  * move returns false to indicate no action was taken. Otherwise, it moves the critter and subtracts the energy cost.
  */
 actionTypes.move = function (critter, vector, action) {
-  const dest = this.checkDestination(action, vector)
-  if (dest == null ||
-    critter.energy <= 1 ||
-    this.grid.get(dest) != null) {
-    return false
+  const dest = this.checkDestination(action, vector);
+  if (dest == null || critter.energy <= 1 || this.grid.get(dest) != null) {
+    return false;
   }
-  critter.energy -= 1
-  this.grid.set(vector, null)
-  this.grid.set(dest, critter)
-  return true
-}
+  critter.energy -= 1;
+  this.grid.set(vector, null);
+  this.grid.set(dest, critter);
+  return true;
+};
 
 /**
  * Eating another critter also involves providing a valid destination square.
@@ -348,15 +352,15 @@ actionTypes.move = function (critter, vector, action) {
  * If so, the energy from the eaten is transferred to the eater, and the victim is removed from the grid.
  */
 actionTypes.eat = function (critter, vector, action) {
-  const dest = this.checkDestination(action, vector)
-  const atDest = dest != null && this.grid.get(dest)
+  const dest = this.checkDestination(action, vector);
+  const atDest = dest != null && this.grid.get(dest);
   if (!atDest || atDest.energy == null) {
-    return false
+    return false;
   }
-  critter.energy += atDest.energy
-  this.grid.set(dest, null)
-  return true
-}
+  critter.energy += atDest.energy;
+  this.grid.set(dest, null);
+  return true;
+};
 
 /**
  * Reproducing costs twice the energy level of the newborn critter.
@@ -367,17 +371,19 @@ actionTypes.eat = function (critter, vector, action) {
  * If everything is okay, the baby is put onto the grid (it is now no longer hypothetical), and the energy is spent.
  */
 actionTypes.reproduce = function (critter, vector, action) {
-  const baby = elementFromChar(this.legend, critter.originChar)
-  const dest = this.checkDestination(action, vector)
-  if (dest == null ||
+  const baby = elementFromChar(this.legend, critter.originChar);
+  const dest = this.checkDestination(action, vector);
+  if (
+    dest == null ||
     critter.energy <= 2 * baby.energy ||
-    this.grid.get(dest) != null) {
-    return false
+    this.grid.get(dest) != null
+  ) {
+    return false;
   }
-  critter.energy -= 2 * baby.energy
-  this.grid.set(dest, baby)
-  return true
-}
+  critter.energy -= 2 * baby.energy;
+  this.grid.set(dest, baby);
+  return true;
+};
 
 /**
  * We could put the critters from the old world into it, but they would just die since they don’t have an energy property.
@@ -385,8 +391,8 @@ actionTypes.reproduce = function (critter, vector, action) {
  *
  * Plants start with an energy level between 3 and 7, randomized so that they don’t all reproduce in the same turn.
  */
-function Plant () {
-  this.energy = 3 + Math.random() * 4
+function Plant() {
+  this.energy = 3 + Math.random() * 4;
 }
 
 /**
@@ -396,57 +402,63 @@ function Plant () {
  */
 Plant.prototype.act = function (view) {
   if (this.energy > 15) {
-    const space = view.find(' ')
+    const space = view.find(' ');
     if (space) {
-      return { type: 'reproduce', direction: space }
+      return { type: 'reproduce', direction: space };
     }
   }
   if (this.energy < 20) {
-    return { type: 'grow' }
+    return { type: 'grow' };
   }
-}
+};
 
 /**
  * And now let's define a plant eater
  */
-function PlantEater () {
-  this.energy = 20
+function PlantEater() {
+  this.energy = 20;
 }
 
 /**
  * We’ll use the * character for plants, so that’s what this creature will look for when it searches for food.
  */
 PlantEater.prototype.act = function (view) {
-  const space = view.find(' ')
+  const space = view.find(' ');
   if (this.energy > 60 && space) {
-    return { type: 'reproduce', direction: space }
+    return { type: 'reproduce', direction: space };
   }
-  const plant = view.find('*')
+  const plant = view.find('*');
   if (plant) {
-    return { type: 'eat', direction: plant }
+    return { type: 'eat', direction: plant };
   }
   if (space) {
-    return { type: 'move', direction: space }
+    return { type: 'move', direction: space };
   }
-}
+};
 
 // --------------------------------------------------
 // Start displaying the world
 // --------------------------------------------------
 
 /* try to choose which plan to use */
-let loadPlan = plan
+let loadPlan = plan;
 if (process.argv[2] !== undefined) {
-  console.log('Trying to load a new plan ' + process.argv[2])
-  loadPlan = require('./plans.json')[process.argv[2]]
+  console.log('Trying to load a new plan ' + process.argv[2]);
+  loadPlan = require('./plans.json')[process.argv[2]];
 }
 
 // start the fun
 // let world = new World(loadPlan, { '#': Wall, 'o': BouncingCritter, '~': WallFollower })
-let world = new LifelikeWorld(loadPlan, { '#': Wall, '*': Plant, 'O': PlantEater, 'o': BouncingCritter, '~': WallFollower })
+let world = new LifelikeWorld(loadPlan, {
+  '#': Wall,
+  '*': Plant,
+  O: PlantEater,
+  o: BouncingCritter,
+  '~': WallFollower,
+});
 // let world = new LifelikeWorld(loadPlan, { '🌱': Plant, '#': Wall, 'O': PlantEater, 'o': BouncingCritter, '*': Plant })
 
 setInterval(function () {
-  world.turn()
-  console.log(world.toString())
-}, 100)
+  world.turn();
+  console.log(world.toString());
+}, 100);
