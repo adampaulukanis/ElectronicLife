@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "eslint **.js",
-    "test": "mocha tests/*"
+    "test": "mocha tests/**.js"
   },
   "repository": {
     "type": "git",
