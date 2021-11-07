@@ -1,5 +1,7 @@
 'use strict';
 
+const Vector = require('./src/Vector.js');
+
 const plan = [
   '############################',
   '#           #####          #',
@@ -12,25 +14,6 @@ const plan = [
   '#     #                    #',
   '############################',
 ];
-
-/**
- * Simple class representing a point in two-dimensional space by means
- * of two coordinates.
- * TODO: I have a class for this: https://github.com/adam17/Vector
- */
-function Vector(x, y) {
-  this.x = x;
-  this.y = y;
-}
-
-/**
- * Adds two vectors and returns the sum of them.
- *
- * TODO Static better here?
- */
-Vector.prototype.plus = function (other) {
-  return new Vector(this.x + other.x, this.y + other.y);
-};
 
 /**
  * To store a grid of values we can use a single array,
