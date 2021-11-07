@@ -1,7 +1,13 @@
 'use strict';
 
-const Vector = require('./src/Vector.js');
-const Grid = require('./src/Grid.js');
+const World = require('./src/World.js');
+const {
+  charFromElement,
+  elementFromChar,
+  directions,
+  directionNames,
+  randomElement,
+} = require('./src/utils.js');
 
 const plan = [
   '############################',
@@ -16,24 +22,6 @@ const plan = [
   '############################',
 ];
 
-const directions = {
-  n: new Vector(0, -1),
-  ne: new Vector(1, -1),
-  e: new Vector(1, 0),
-  se: new Vector(1, 1),
-  s: new Vector(0, 1),
-  sw: new Vector(-1, 1),
-  w: new Vector(-1, 0),
-  nw: new Vector(-1, -1),
-};
-
-function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-// const directionNames = 'n ne e se s sw w nw'.split(' ')
-const directionNames = Object.keys(directions);
-
 function BouncingCritter() {
   this.direction = randomElement(directionNames);
 }
@@ -42,104 +30,6 @@ BouncingCritter.prototype.act = function (view) {
     this.direction = view.find(' ') || 's';
   }
   return { type: 'move', direction: this.direction };
-};
-
-// World
-function elementFromChar(legend, ch) {
-  if (ch === ' ') {
-    return null;
-  }
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt#Getting_whole_characters
-  let element = new legend[ch]();
-  element.originChar = ch;
-  return element;
-}
-
-function World(map, legend) {
-  /*
-   * Sprawdzaj czy na mapie nie ma non-BMP znaków
-   *
-   * BUG: taki znak musi być ostatnią ,,literką'', inaczej wywala program. Czemu?
-   * SOLUTION: Nie używaj fixedCharAt(): zwraca '' jeśli index jest niewłaściwy
-   */
-  let grid = new Grid(map[0].length, map.length);
-  this.grid = grid;
-  this.legend = legend;
-
-  map.forEach(function (line, y) {
-    /*
-     * I have learnt the hard way that if I use for instance multi-byte characters (like this 🌱) than
-     * iterating over such string does not work.
-     * e.g.: '🌱🌱🌱🌱'[2] gives garbage.
-     *
-     * More examples: https://flaviocopes.com/javascript-unicode/ bottom of the page
-     */
-    [...line].forEach((x, index) => {
-      grid.set(new Vector(index, y), elementFromChar(legend, x));
-    });
-
-    /*
-    for (let x = 0, chr; x < line.length; x++) {
-       // Oto zagadka: co zrobić jeśli znajdziesz tutaj z angielskiego: non-BMP characters?
-      if (((chr = require('./getWholeChar.js')(line, x)) === false)) {
-        continue
-      }
-      // grid.set(new Vector(x, y), elementFromChar(legend, require('./getWholeChar.js')(line, x)))
-      grid.set(new Vector(x, y), elementFromChar(legend, chr))
-    }
-    */
-  });
-}
-
-function charFromElement(element) {
-  if (element == null) {
-    return ' ';
-  } else {
-    return element.originChar;
-  }
-}
-
-World.prototype.toString = function () {
-  let output = '';
-  for (let y = 0; y < this.grid.height; y++) {
-    for (let x = 0; x < this.grid.width; x++) {
-      let element = this.grid.get(new Vector(x, y));
-      output += charFromElement(element);
-    }
-    output += '\n';
-  }
-  return output;
-};
-
-World.prototype.turn = function () {
-  let acted = [];
-  this.grid.forEach(function (critter, vector) {
-    if (critter.act && acted.indexOf(critter) === -1) {
-      acted.push(critter);
-      this.letAct(critter, vector);
-    }
-  }, this);
-};
-
-World.prototype.letAct = function (critter, vector) {
-  let action = critter.act(new View(this, vector));
-  if (action && action.type === 'move') {
-    let dest = this.checkDestination(action, vector);
-    if (dest && this.grid.get(dest) == null) {
-      this.grid.set(vector, null);
-      this.grid.set(dest, critter);
-    }
-  }
-};
-
-World.prototype.checkDestination = function (action, vector) {
-  //if (directions.hasOwnProperty(action.direction)) {
-  if (Object.prototype.hasOwnProperty.call(directions, action.direction)) {
-    let dest = vector.plus(directions[action.direction]);
-    if (this.grid.isInside(dest)) {
-      return dest;
-    }
-  }
 };
 
 function Wall() {}
