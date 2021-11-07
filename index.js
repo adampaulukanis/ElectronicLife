@@ -25,6 +25,8 @@ function Vector(x, y) {
 
 /**
  * Adds two vectors and returns the sum of them.
+ *
+ * TODO Static better here?
  */
 Vector.prototype.plus = function (other) {
   return new Vector(this.x + other.x, this.y + other.y);
