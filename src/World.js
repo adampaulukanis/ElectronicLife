@@ -2,6 +2,7 @@
 
 const Grid = require('./Grid.js');
 const Vector = require('./Vector.js');
+const View = require('./View.js');
 const { charFromElement, elementFromChar, directions } = require('./utils.js');
 
 class World {
@@ -77,7 +78,7 @@ class World {
   checkDestination(action, vector) {
     //if (directions.hasOwnProperty(action.direction)) {
     if (Object.prototype.hasOwnProperty.call(directions, action.direction)) {
-      let dest = vector.plus(directions[action.direction]);
+      let dest = vector.add(directions[action.direction]);
       if (this.grid.isInside(dest)) {
         return dest;
       }
