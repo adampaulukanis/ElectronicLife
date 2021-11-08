@@ -1,6 +1,7 @@
 'use strict';
 
 const Grid = require('./Grid.js');
+const Vector = require('./Vector.js');
 const { charFromElement, elementFromChar, directions } = require('./utils.js');
 
 class World {
