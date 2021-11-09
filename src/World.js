@@ -17,7 +17,7 @@ class World {
     this.grid = grid;
     this.legend = legend;
 
-    map.forEach(function (line, y) {
+    map.forEach((line, y) => {
       /*
        * I have learnt the hard way that if I use for instance multi-byte characters (like this 🌱) than
        * iterating over such string does not work.
