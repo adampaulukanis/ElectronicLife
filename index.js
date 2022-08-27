@@ -2,6 +2,7 @@
 
 const World = require('./src/World.js');
 const Wall = require('./src/Wall.js');
+const WallFollower = require('./src/WallFollower.js');
 const BouncingCritter = require('./src/BouncingCritter.js');
 
 const plan = [
@@ -33,7 +34,7 @@ if (process.argv[2] !== undefined) {
 // start the fun
 let world = new World(loadPlan, {
   '#': Wall,
-  '~': Wall,
+  '~': WallFollower,
   o: BouncingCritter,
 });
 
